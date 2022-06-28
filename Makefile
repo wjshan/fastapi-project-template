@@ -9,6 +9,9 @@ help:             ## Show the help.
 	@echo "Targets:"
 	@fgrep "##" Makefile | fgrep -v fgrep
 
+.PHONY: rename
+rename:           ## init rename project.
+	$(ENV_PREFIX)python scripts/rename_project.py .
 
 .PHONY: show
 show:             ## Show the current environment.
@@ -23,6 +26,10 @@ install:          ## Install the project in dev mode.
 	@if [ "$(USING_POETRY)" ]; then poetry install && exit; fi
 	@echo "Don't forget to run 'make virtualenv' if you got errors."
 	$(ENV_PREFIX)pip install -e .[test]
+
+.PHONY: dev
+dev: install
+	@
 
 .PHONY: fmt
 fmt:              ## Format code using black & isort.
@@ -110,37 +117,3 @@ switch-to-poetry: ## Switch to poetry package manager.
 	@mv setup.py .github/backup
 	@echo "You have switched to https://python-poetry.org/ package manager."
 	@echo "Please run 'poetry shell' or 'poetry run project_name'"
-
-.PHONY: init
-init:             ## Initialize the project based on an application template.
-	@./.github/init.sh
-
-.PHONY: shell
-shell:            ## Open a shell in the project.
-	@if [ "$(USING_POETRY)" ]; then poetry shell; exit; fi
-	@./.venv/bin/ipython -c "from project_name import *"
-
-.PHONY: docker-build
-docker-build:	  ## Builder docker images
-	@docker-compose -f docker-compose-dev.yaml -p project_name build
-
-.PHONY: docker-run
-docker-run:  	  ## Run docker development images
-	@docker-compose -f docker-compose-dev.yaml -p project_name up -d
-
-.PHONY: docker-stop
-docker-stop: 	  ## Bring down docker dev environment
-	@docker-compose -f docker-compose-dev.yaml -p project_name down
-
-.PHONY: docker-ps
-docker-ps: 	  ## Bring down docker dev environment
-	@docker-compose -f docker-compose-dev.yaml -p project_name ps
-
-.PHONY: docker-log
-docker-logs: 	  ## Bring down docker dev environment
-	@docker-compose -f docker-compose-dev.yaml -p project_name logs -f app
-
-# This project has been generated from rochacbruno/fastapi-project-template
-# __author__ = 'rochacbruno'
-# __repo__ = https://github.com/rochacbruno/fastapi-project-template
-# __sponsor__ = https://github.com/sponsors/rochacbruno/

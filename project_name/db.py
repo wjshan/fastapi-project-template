@@ -1,21 +1,19 @@
 from fastapi import Depends
-from sqlmodel import Session, SQLModel, create_engine
-
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker
 from .config import settings
 
-engine = create_engine(
+engine = create_async_engine(
     settings.db.uri,
-    echo=settings.db.echo,
-    connect_args=settings.db.connect_args,
+    echo=settings.db.echo
 )
 
 
-def create_db_and_tables(engine):
-    SQLModel.metadata.create_all(engine)
-
-
-def get_session():
-    with Session(engine) as session:
+async def get_session() -> AsyncSession:
+    async_session = sessionmaker(
+        engine, class_=AsyncSession, expire_on_commit=False
+    )
+    async with async_session() as session:
         yield session
 
 

@@ -43,39 +43,3 @@ def _settings():
 def api_client():
     return TestClient(app)
 
-
-@pytest.fixture(scope="function")
-def api_client_authenticated():
-
-    try:
-        create_user("admin", "admin", superuser=True)
-    except IntegrityError:
-        pass
-
-    client = TestClient(app)
-    token = client.post(
-        "/token",
-        data={"username": "admin", "password": "admin"},
-        headers={"Content-Type": "application/x-www-form-urlencoded"},
-    ).json()["access_token"]
-    client.headers["Authorization"] = f"Bearer {token}"
-    return client
-
-
-@pytest.fixture(scope="function")
-def cli_client():
-    return CliRunner()
-
-
-def remove_db():
-    # Remove the database file
-    try:
-        os.remove("testing.db")
-    except FileNotFoundError:
-        pass
-
-
-@pytest.fixture(scope="session", autouse=True)
-def initialize_db(request):
-    db.create_db_and_tables(db.engine)
-    request.addfinalizer(remove_db)

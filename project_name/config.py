@@ -6,14 +6,13 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 settings = Dynaconf(
     envvar_prefix="project_name",
-    preload=[os.path.join(HERE, "default.toml")],
-    settings_files=["settings.toml", ".secrets.toml"],
-    environments=["development", "production", "testing"],
+    preload=[".env", os.path.join(HERE, "default.toml")],
+    settings_files=["settings.toml"],
+    environments=True,
     env_switcher="project_name_env",
-    load_dotenv=False,
+    load_dotenv=True,
+    merge_enabled=True
 )
-
-
 """
 # How to use this application settings
 
